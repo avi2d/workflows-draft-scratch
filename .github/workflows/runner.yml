@@ -1,0 +1,29 @@
+name: runner
+on:
+  workflow_call:
+    outputs:
+      runs-on:
+        description: The caller's CI_RUNS_ON variable when set, else ubuntu-latest.
+        value: ${{ vars.CI_RUNS_ON || jobs.hosted-minutes.outputs.runs-on || 'ubuntu-latest' }}
+permissions:
+  contents: read
+jobs:
+  # A hosted job refused for want of minutes fails before any step, so continue-on-error cannot keep it off the check list.
+  hosted-minutes:
+    if: ${{ !vars.CI_RUNS_ON }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 1
+    outputs:
+      runs-on: ubuntu-latest
+    steps:
+      - run: echo hosted runner started
+  # Without a job that runs, a caller with CI_RUNS_ON set would see its runner job skipped.
+  pick:
+    if: ${{ vars.CI_RUNS_ON }}
+    runs-on: ${{ vars.CI_RUNS_ON || 'ubuntu-latest' }}
+    timeout-minutes: 1
+    steps:
+      - run: 'echo "runner pick: $RUNS_ON"'
+        env:
+          RUNS_ON: ${{ vars.CI_RUNS_ON }}

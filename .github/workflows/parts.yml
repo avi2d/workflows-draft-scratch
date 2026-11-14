@@ -1,0 +1,37 @@
+name: parts
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+permissions:
+  contents: read
+  actions: write
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: avi2d/workflows-draft-scratch/actions/draft-hold@main
+      - run: sleep 5
+  waiting:
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ran
+  gate-not-cancelled:
+    needs: unit
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ran
+  gate-always:
+    needs: unit
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: avi2d/workflows-draft-scratch/actions/draft-hold@main
+      - env:
+          UNIT: ${{ needs.unit.result }}
+        run: test "$UNIT" = success

@@ -1,0 +1,32 @@
+name: ci
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+permissions:
+  contents: read
+  statuses: write
+  actions: write
+concurrency:
+  group: ci-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  runner:
+    uses: avi2d/workflows-draft-scratch/.github/workflows/runner.yml@main
+  checks:
+    needs: runner
+    runs-on: ${{ needs.runner.outputs.runs-on }}
+    timeout-minutes: 10
+    steps:
+      - uses: avi2d/workflows-draft-scratch/actions/draft-hold@main
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: stand in for the full checks
+        run: sleep 20 && test ! -e fail-the-checks
+      - name: report the result on the head commit
+        if: always() && github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STATE: ${{ job.status == 'success' && 'success' || 'failure' }}
+        run: gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" -f state="$STATE" -f context=checks
