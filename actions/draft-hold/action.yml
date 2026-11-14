@@ -5,8 +5,8 @@ inputs:
     description: The token that cancels the run. It needs actions write.
     default: ${{ github.token }}
   wait-seconds:
-    description: How long the step waits for GitHub to stop the job once the cancel is accepted, before it fails.
-    default: "120"
+    description: How long the step waits for GitHub to stop the job once the cancel is accepted, before it fails the job.
+    default: "30"
 runs:
   using: composite
   steps:

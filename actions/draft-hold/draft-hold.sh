@@ -21,5 +21,6 @@ if ! gh api --method POST "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/
 fi
 echo "::notice::The pull request is a draft, so its checks wait. Re-run this run to start them by hand, or mark the pull request ready for review."
 sleep "$WAIT_SECONDS"
-echo "::error::GitHub accepted the cancel of this run $WAIT_SECONDS seconds ago and the job still runs"
+# GitHub never stops a job whose if: is always(), so the hold fails it in place of a pass.
+echo "::error::The pull request is a draft and this job outlived the cancel of its run, so the job fails. Re-run this run to start the checks by hand."
 exit 1
