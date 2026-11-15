@@ -12,13 +12,13 @@ concurrency:
   cancel-in-progress: true
 jobs:
   runner:
-    uses: avi2d/workflows-draft-scratch/.github/workflows/runner.yml@main
+    uses: avi2d/workflows/.github/workflows/runner.yml@v3
   checks:
     needs: runner
     runs-on: ${{ needs.runner.outputs.runs-on }}
     timeout-minutes: 10
     steps:
-      - uses: avi2d/workflows-draft-scratch/actions/draft-hold@main
+      - uses: avi2d/workflows/actions/draft-hold@v3
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}

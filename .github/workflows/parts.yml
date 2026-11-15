@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: avi2d/workflows-draft-scratch/actions/draft-hold@main
+      - uses: avi2d/workflows/actions/draft-hold@v3
       - run: sleep 5
   waiting:
     needs: unit
@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: avi2d/workflows-draft-scratch/actions/draft-hold@main
+      - uses: avi2d/workflows/actions/draft-hold@v3
       - env:
           UNIT: ${{ needs.unit.result }}
         run: test "$UNIT" = success
